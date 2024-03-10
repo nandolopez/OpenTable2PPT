@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
+import * as fs from "fs";
 
 // The built directory structure
 //
@@ -61,6 +62,31 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }
+})
+
+app.on('ready',()=>{
+   //Checking if directory exists
+   const LocalAPPDir = app.getPath("userData")
+   const DatabaseSource = path.join(path.dirname(__filename), "database.json");
+   const DatabasePath = path.join(LocalAPPDir, "database.json");
+ 
+   if (!fs.existsSync(DatabasePath)) {
+     fs.copyFileSync(DatabaseSource, DatabasePath );
+   }
+   
+   ipcMain.handle('getDatabase', (event, args) => {
+     let result = undefined
+     if(fs.existsSync(DatabasePath)){
+       const rawData = fs.readFileSync(DatabasePath)
+       result = JSON.parse(rawData.toString())
+     }
+     return result
+   });
+ 
+   ipcMain.handle('updateDatabase', (event, args) => {
+    fs.writeFileSync(DatabasePath, JSON.stringify(args[0]))
+   });
+ 
 })
 
 app.whenReady().then(createWindow)

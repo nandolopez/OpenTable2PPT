@@ -1,4 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { IElectronAPI } from '../src/interfaces/IElectronAPI'
+// ---------COMMUNICATIONS BETWEEN RENDER AND MAIN PROCESS ---------
+
+const ElectronAPI: IElectronAPI = {
+  getDatabase: () => ipcRenderer.invoke("getDatabase"),
+  updateDatabase: (data) => ipcRenderer.invoke("updateDatabase", data)
+}
+contextBridge.exposeInMainWorld('electronAPI', ElectronAPI)
+
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', withPrototype(ipcRenderer))
