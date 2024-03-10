@@ -32,7 +32,11 @@ function createWindow() {
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
   })
-  win.webContents.openDevTools();
+
+  //Allow console while I delevelop this
+    win.webContents.openDevTools();
+  //Remove menus
+  win.menuBarVisible = false
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
   } else {
