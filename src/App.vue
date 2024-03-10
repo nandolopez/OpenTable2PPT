@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { IDatabase } from './interfaces/IDatabase';
 import { IElectronAPI } from './interfaces/IElectronAPI';
 
@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-let Database = reactive<IDatabase>({
+let Database = ref<IDatabase>({
   Config: {
     DarkMode: undefined,
     LastConfig: undefined,
@@ -18,12 +18,14 @@ let Database = reactive<IDatabase>({
   ExcelConfigs: []
 })
 
+
+
 const onClickButtonShowSettingsMenu = () => {
 }
 const onClickButtonToggleDarkMode = () => {
-  Database.Config.DarkMode = !Database.Config.DarkMode
+  Database.value.Config.DarkMode = !Database.value.Config.DarkMode
   document.documentElement.classList.remove("dark");
-  if (Database.Config.DarkMode) {
+  if (Database.value.Config.DarkMode) {
     document.documentElement.classList.add("dark")
   }
   onUpdateDatabase()
@@ -31,15 +33,14 @@ const onClickButtonToggleDarkMode = () => {
 
 
 const onUpdateDatabase = () => {
-  window.electronAPI.updateDatabase([Database]);
+  window.electronAPI.updateDatabase([JSON.stringify(Database.value)]);
 }
 
 onMounted(() => {
   window.electronAPI.getDatabase()
     .then((e: IDatabase) => {
-      Database = { ...e }
+      Database.value = { ...e }
       if(e.Config.DarkMode) document.documentElement.classList.add("dark")
-      console.log(Database.Config.DarkMode)
     })
 })
 
@@ -51,11 +52,14 @@ onMounted(() => {
       <img src="./assets/cog.svg" alt="" />
     </button>
     <button @click="onClickButtonToggleDarkMode()">
-      <img v-if="Database.Config.DarkMode" src="./assets/moon.svg" alt="Lightmode" />
+      <img v-if="Database.Config.DarkMode == true" src="./assets/moon.svg" alt="Lightmode" />
       <img v-else src="./assets/sun.svg" alt="Darkmode" />
     </button>
   </nav>
   <div className="dark:text-white flex flex-col gap-4 p-3">
+    {{ Database.Config.DarkMode }}
+
+    <br>
     Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat pariatur earum quas odio deserunt cum veritatis,
     accusantium, doloremque nemo modi voluptates dolor nulla aliquam, eius ab! Reiciendis sed hic rem.
   </div>

@@ -84,7 +84,7 @@ app.on('ready',()=>{
    });
  
    ipcMain.handle('updateDatabase', (event, args) => {
-    fs.writeFileSync(DatabasePath, JSON.stringify(args[0]))
+    fs.writeFileSync(DatabasePath, args[0])
    });
  
 })
